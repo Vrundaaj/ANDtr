@@ -1,0 +1,15 @@
+@model UserFormViewModel
+@{
+    ViewData["Title"] = "New user";
+}
+
+<a asp-action="Index" class="back-link">@Icons.Svg("chevron-left", 14) Back to users</a>
+<div class="page-header">
+    <h1 class="page-title">New user</h1>
+</div>
+
+<partial name="_UserForm" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

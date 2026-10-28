@@ -1,0 +1,14 @@
+@model IEnumerable<FeatureCard>
+
+@* Cards for the features planned on this page, each marked as in development. *@
+<div class="feature-grid">
+    @foreach (var card in Model)
+    {
+        <div class="panel feature-card">
+            <span class="stat-icon tone-purple">@Icons.Svg(card.Icon, 20)</span>
+            <h2>@card.Title</h2>
+            <p>@card.Description</p>
+            <span class="pill pill-inactive">@Icons.Svg("clock", 12) In development</span>
+        </div>
+    }
+</div>

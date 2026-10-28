@@ -1,0 +1,16 @@
+@using ANDtr.Web.Services
+@model string
+
+@* Greeting at the top of each role's home page. The model is the line under the greeting. *@
+@{
+    var name = User.FindFirst(ApplicationClaimsPrincipalFactory.FullNameClaim)?.Value ?? User.Identity?.Name;
+    var role = Roles.All.FirstOrDefault(User.IsInRole) ?? "User";
+}
+<section class="hero">
+    <div class="hero-text">
+        <span class="hero-badge">@Icons.Svg("shield", 14) Signed in as @role</span>
+        <h1>Welcome back, @name</h1>
+        <p>@Model</p>
+    </div>
+    <span class="avatar hero-avatar">@DisplayText.Initials(name)</span>
+</section>

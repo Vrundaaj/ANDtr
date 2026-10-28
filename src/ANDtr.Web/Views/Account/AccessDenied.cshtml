@@ -1,0 +1,12 @@
+@{
+    ViewData["Title"] = "Access denied";
+}
+
+@* Says nothing about what the page holds, so no private data is leaked. *@
+<div class="panel denied">
+    <div class="denied-icon">@Icons.Svg("ban", 52)</div>
+    <h1 class="denied-title">Access denied</h1>
+    <p>You do not have permission to view this page.</p>
+    <p>If you think this is a mistake, contact your administrator.</p>
+    <a class="btn btn-primary btn-wide mt-4" asp-area="" asp-controller="Home" asp-action="Index">@Icons.Svg("chevron-left") Back to my home page</a>
+</div>

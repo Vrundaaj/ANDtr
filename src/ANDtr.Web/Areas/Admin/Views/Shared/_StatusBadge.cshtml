@@ -1,0 +1,18 @@
+@model UserListItem
+
+@if (Model.IsDeleted)
+{
+    <span class="pill pill-dot pill-inactive" title="Deleted @Model.DeletedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")">Deleted</span>
+}
+else if (Model.IsLocked)
+{
+    <span class="pill pill-locked" title="Too many wrong passwords">@Icons.Svg("lock", 12) Locked</span>
+}
+else if (Model.IsActive)
+{
+    <span class="pill pill-dot pill-active">Active</span>
+}
+else
+{
+    <span class="pill pill-dot pill-inactive">Inactive</span>
+}

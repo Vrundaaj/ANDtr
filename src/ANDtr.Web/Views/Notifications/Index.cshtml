@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "Notifications";
+    FeatureCard[] features =
+    [
+        new("share", "New shared reviews", "A message whenever ANDtr shares a review with your organisation."),
+        new("pencil", "New comments", "A message when someone replies to a review you follow."),
+    ];
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Notifications</h1>
+        <p class="page-subtitle">Updates about reviews shared with your organisation.</p>
+    </div>
+</div>
+
+<partial name="_FeatureCards" model="features" />

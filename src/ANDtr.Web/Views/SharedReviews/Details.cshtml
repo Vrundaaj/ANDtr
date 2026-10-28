@@ -1,0 +1,104 @@
+@model SharedReviewDetails
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+@* Read-only review for a customer. Only reached when the review is shared with their organisation (A2-05). *@
+<a asp-action="Index" class="back-link">@Icons.Svg("chevron-left", 14) Back to shared reviews</a>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@Model.Name</h1>
+        <p class="page-subtitle">
+            Shared with <strong>@Model.OrganisationName</strong> by @Model.SharedBy
+            on @Model.SharedAt.ToLocalTime().ToString("dd/MM/yyyy")
+        </p>
+    </div>
+    <span class="pill pill-customer">@Icons.Svg("lock", 12) Visible to @Model.OrganisationName only</span>
+</div>
+
+@* ---- Recall notices in this review ---- *@
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h2 class="panel-title">Recall notices</h2>
+            <p class="panel-subtitle">@Model.Notices.Count @(Model.Notices.Count == 1 ? "notice" : "notices") selected as relevant to this review</p>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="table app-table">
+            <thead>
+                <tr>
+                    <th>Recall</th>
+                    <th>Product</th>
+                    <th>Firm</th>
+                    <th>Class</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var notice in Model.Notices)
+                {
+                    <tr>
+                        <td class="text-nowrap">
+                            <a href="@notice.WebAddress" target="_blank" rel="noopener"><strong>@notice.RecallNumber</strong></a>
+                        </td>
+                        <td>
+                            <span class="cell-user-text">
+                                <strong>@notice.ProductCodeName</strong>
+                                <span>@Shorten(notice.ProductDescription, 90)</span>
+                            </span>
+                        </td>
+                        <td>@notice.FirmName</td>
+                        <td><span class="pill @ClassPill(notice.RecallClass)">Class @notice.RecallClass</span></td>
+                        <td class="text-muted small">@Shorten(notice.Reason, 120)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.Notices.Count == 0)
+        {
+            <div class="empty-state">
+                @Icons.Svg("file", 32)
+                <strong>No notices in this review yet</strong>
+            </div>
+        }
+    </div>
+</section>
+
+@* ---- Findings from ANDtr (internal comments are never shown) ---- *@
+<section class="panel mt-4">
+    <div class="panel-header">
+        <div>
+            <h2 class="panel-title">Findings and comments</h2>
+            <p class="panel-subtitle">Notes from the ANDtr team about this review</p>
+        </div>
+    </div>
+    <div class="panel-body">
+        @foreach (var comment in Model.Comments)
+        {
+            <div class="comment">
+                <span class="avatar tone-blue">@DisplayText.Initials(comment.Author)</span>
+                <div>
+                    <div class="comment-meta"><strong>@comment.Author</strong> · @DisplayText.TimeAgo(comment.CreatedAt)</div>
+                    <p>@comment.Body</p>
+                </div>
+            </div>
+        }
+        @if (Model.Comments.Count == 0)
+        {
+            <p class="text-muted mb-0">No comments yet.</p>
+        }
+    </div>
+</section>
+
+@functions {
+    private static string ClassPill(int recallClass) => recallClass switch
+    {
+        1 => "pill-danger",
+        2 => "pill-locked",
+        _ => "pill-inactive",
+    };
+
+    private static string Shorten(string text, int length) =>
+        text.Length <= length ? text : $"{text[..length].TrimEnd()}…";
+}

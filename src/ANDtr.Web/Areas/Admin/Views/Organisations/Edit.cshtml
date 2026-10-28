@@ -1,0 +1,74 @@
+@model OrganisationFormViewModel
+@{
+    ViewData["Title"] = "Edit organisation";
+}
+
+<a asp-action="Index" class="back-link">@Icons.Svg("chevron-left", 14) Back to organisations</a>
+<div class="page-header">
+    <div class="cell-user">
+        <span class="avatar avatar-lg is-square tone-purple">@DisplayText.Initials(Model.Name)</span>
+        <div>
+            <h1 class="page-title mb-1">Edit organisation</h1>
+            <p class="page-subtitle">@Model.Name</p>
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <partial name="_OrganisationForm" model="Model" />
+    <partial name="_FormButtons" />
+</div>
+
+@* ---- Customers already in this organisation ---- *@
+<section class="panel mt-4">
+    <div class="panel-header">
+        <div>
+            <h2 class="panel-title">Customer users in this organisation</h2>
+            <p class="panel-subtitle">@Model.Customers.Count @(Model.Customers.Count == 1 ? "user" : "users") can see reviews shared with @Model.Name.</p>
+        </div>
+        <a class="btn btn-light" asp-controller="Users" asp-action="Create" asp-route-role="@Roles.Customer" asp-route-organisationId="@Model.Id">
+            @Icons.Svg("user-plus") Add a customer user to this organisation
+        </a>
+    </div>
+    <div class="table-wrap">
+        <table class="table app-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>Last login</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var customer in Model.Customers)
+                {
+                    <tr class="@(customer.IsActive ? "" : "row-inactive")">
+                        <td>
+                            <div class="cell-user">
+                                <span class="avatar tone-green">@DisplayText.Initials(customer.FullName)</span>
+                                <span class="cell-user-text">
+                                    <a asp-controller="Users" asp-action="Edit" asp-route-id="@customer.Id"><strong>@customer.FullName</strong></a>
+                                    <span>@customer.Email</span>
+                                </span>
+                            </div>
+                        </td>
+                        <td><partial name="_StatusBadge" model="customer" /></td>
+                        <td>@DisplayText.TimeAgo(customer.LastLoginAt)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.Customers.Count == 0)
+        {
+            <div class="empty-state">
+                @Icons.Svg("users", 32)
+                <strong>No customer users yet</strong>
+                Add one so this organisation can see shared reviews.
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

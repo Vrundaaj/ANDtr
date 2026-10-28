@@ -1,0 +1,257 @@
+@model UserListViewModel
+@using Microsoft.AspNetCore.Html
+@using Microsoft.AspNetCore.Routing
+@{
+    ViewData["Title"] = "Users";
+    var firstShown = Model.TotalCount == 0 ? 0 : (Model.Page - 1) * Model.PageSize + 1;
+    var lastShown = (Model.Page - 1) * Model.PageSize + Model.Users.Count;
+    var currentSort = string.IsNullOrEmpty(Model.Sort) ? UserSort.Name : Model.Sort;
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Users</h1>
+        <p class="page-subtitle">Create users, give them a role and deactivate accounts.</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn btn-primary" asp-action="Create">@Icons.Svg("user-plus") New user</a>
+    </div>
+</div>
+
+<partial name="_StatusMessage" />
+
+<section class="panel">
+    @* ---- Search and filters: the lists submit as soon as they change ---- *@
+    <form method="get" asp-action="Index" class="toolbar">
+        <input type="hidden" asp-for="OrganisationId" />
+        <input type="hidden" asp-for="Sort" />
+        <input type="hidden" asp-for="Desc" />
+        <div class="input-icon">
+            @Icons.Svg("search")
+            <input asp-for="Search" class="form-control" placeholder="Search name or email…" aria-label="Search name or email"
+                   autocomplete="off" data-live-search="#user-results" />
+        </div>
+        <select asp-for="Role" class="form-select" aria-label="Role" onchange="this.form.submit()">
+            <option value="">All roles</option>
+            @foreach (var role in new[] { Roles.Admin, Roles.Employee, Roles.Customer })
+            {
+                <option value="@role">@role</option>
+            }
+        </select>
+        <select asp-for="Status" class="form-select" aria-label="Status" onchange="this.form.submit()">
+            <option value="">All statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="deleted">Deleted</option>
+        </select>
+        @if (Model.OrganisationName is not null)
+        {
+            <span class="filter-chip">
+                @Icons.Svg("building", 14) @Model.OrganisationName
+                <a href="@Url.Action("Index", Route(organisationId: false))" aria-label="Show all organisations">@Icons.Svg("x", 14)</a>
+            </span>
+        }
+        <span class="toolbar-count">@Model.TotalCount @(Model.TotalCount == 1 ? "user" : "users")</span>
+    </form>
+
+    @* ---- Users table and paging: replaced in place by the live search (site.js) ---- *@
+    <div id="user-results">
+    <div class="table-wrap">
+        <table class="table app-table">
+            <thead>
+                <tr>
+                    <th>@SortHeader(UserSort.Name, "User", currentSort)</th>
+                    <th>@SortHeader(UserSort.Role, "Role", currentSort)</th>
+                    <th>@SortHeader(UserSort.Organisation, "Organisation", currentSort)</th>
+                    <th>@SortHeader(UserSort.Status, "Status", currentSort)</th>
+                    <th>@SortHeader(UserSort.LastLogin, "Last login", currentSort)</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model.Users)
+                {
+                    <tr class="@(user.IsActive ? "" : "row-inactive")">
+                        <td>
+                            <div class="cell-user">
+                                <span class="avatar @RoleTone(user.Role)">@DisplayText.Initials(user.FullName)</span>
+                                <span class="cell-user-text">
+                                    @if (user.IsDeleted)
+                                    {
+                                        <strong>@user.FullName</strong>
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@user.Id"><strong>@user.FullName</strong></a>
+                                    }
+                                    <span>@user.Email</span>
+                                </span>
+                            </div>
+                        </td>
+                        <td><span class="pill pill-@(user.Role?.ToLowerInvariant() ?? "inactive")">@(user.Role ?? "None")</span></td>
+                        <td>
+                            @if (user.Organisation is null)
+                            {
+                                <span class="text-dash">—</span>
+                            }
+                            else
+                            {
+                                @user.Organisation
+                            }
+                        </td>
+                        <td><partial name="_StatusBadge" model="user" /></td>
+                        <td title="@(user.LastLoginAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "Never logged in")">
+                            @DisplayText.TimeAgo(user.LastLoginAt)
+                        </td>
+                        <td>
+                            <div class="row-actions">
+                                @if (user.IsDeleted)
+                                {
+                                    <form asp-action="Restore" asp-route-id="@user.Id" method="post" class="inline-form"
+                                          data-confirm="Restore @user.FullName?"
+                                          data-confirm-detail="They will be back in the users list as an active user and can sign in again."
+                                          data-confirm-yes="Yes, restore" data-confirm-tone="success">
+                                        <button type="submit" class="action is-success">@Icons.Svg("rotate", 14) Restore</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <a class="action" asp-action="Edit" asp-route-id="@user.Id">@Icons.Svg("pencil", 14) Edit</a>
+                                    @if (user.IsLocked)
+                                    {
+                                        <form asp-action="Unlock" asp-route-id="@user.Id" method="post" class="inline-form">
+                                            <button type="submit" class="action is-warning">@Icons.Svg("unlock", 14) Unlock</button>
+                                        </form>
+                                    }
+                                    @if (user.IsActive)
+                                    {
+                                        <form asp-action="Deactivate" asp-route-id="@user.Id" method="post" class="inline-form"
+                                              data-confirm="Deactivate @user.FullName?"
+                                              data-confirm-detail="They will lose access straight away. You can reactivate them later."
+                                              data-confirm-yes="Yes, deactivate">
+                                            <button type="submit" class="action is-danger">@Icons.Svg("power", 14) Deactivate</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Reactivate" asp-route-id="@user.Id" method="post" class="inline-form"
+                                              data-confirm="Reactivate @user.FullName?"
+                                              data-confirm-detail="They will be able to sign in again."
+                                              data-confirm-yes="Yes, reactivate" data-confirm-tone="success">
+                                            <button type="submit" class="action is-success">@Icons.Svg("rotate", 14) Reactivate</button>
+                                        </form>
+                                    }
+                                    <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="inline-form"
+                                          data-confirm="Are you sure you want to delete @user.FullName?"
+                                          data-confirm-detail="They will be moved to the Deleted list and can no longer sign in. You can restore them from there."
+                                          data-confirm-yes="Yes, delete">
+                                        <button type="submit" class="action is-danger">@Icons.Svg("trash", 14) Delete</button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.Users.Count == 0)
+        {
+            <div class="empty-state">
+                @if (!string.IsNullOrWhiteSpace(Model.Search))
+                {
+                    @Icons.Svg("search", 32)
+                    <strong>No search results found</strong>
+                    <span>No users match “@Model.Search.Trim()”. Check the spelling, try another name or email, or <a asp-action="Index">clear the search</a>.</span>
+                }
+                else if (!string.IsNullOrEmpty(Model.Role) || !string.IsNullOrEmpty(Model.Status) || Model.OrganisationId is not null)
+                {
+                    @Icons.Svg("search", 32)
+                    <strong>No data available</strong>
+                    <span>No users match these filters. <a asp-action="Index">Clear the filters</a>.</span>
+                }
+                else
+                {
+                    @Icons.Svg("users", 32)
+                    <strong>No data available</strong>
+                    <span>There are no users yet. <a asp-action="Create">Add the first user</a>.</span>
+                }
+            </div>
+        }
+    </div>
+
+    @* ---- Paging ---- *@
+    <div class="panel-footer">
+        <span>Showing @firstShown–@lastShown of @Model.TotalCount users</span>
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="pager" aria-label="Users pages">
+                @if (Model.Page > 1)
+                {
+                    <a href="@Url.Action("Index", Route(page: Model.Page - 1))">@Icons.Svg("chevron-left", 14) Prev</a>
+                }
+                else
+                {
+                    <span class="disabled">@Icons.Svg("chevron-left", 14) Prev</span>
+                }
+                @for (var pageNumber = 1; pageNumber <= Model.TotalPages; pageNumber++)
+                {
+                    if (pageNumber == Model.Page)
+                    {
+                        <span class="current" aria-current="page">@pageNumber</span>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Index", Route(page: pageNumber))">@pageNumber</a>
+                    }
+                }
+                @if (Model.Page < Model.TotalPages)
+                {
+                    <a href="@Url.Action("Index", Route(page: Model.Page + 1))">Next @Icons.Svg("chevron-right", 14)</a>
+                }
+                else
+                {
+                    <span class="disabled">Next @Icons.Svg("chevron-right", 14)</span>
+                }
+            </nav>
+        }
+    </div>
+    </div>
+</section>
+
+@functions {
+    private static string RoleTone(string? role) => role switch
+    {
+        Roles.Admin => "tone-purple",
+        Roles.Employee => "tone-blue",
+        Roles.Customer => "tone-green",
+        _ => "tone-grey",
+    };
+
+    // Query string for links, keeping the current filters and sort unless overridden.
+    private RouteValueDictionary Route(int? page = null, string? sort = null, bool? desc = null, bool organisationId = true)
+    {
+        var route = new RouteValueDictionary();
+        if (!string.IsNullOrEmpty(Model.Search)) route["search"] = Model.Search;
+        if (!string.IsNullOrEmpty(Model.Role)) route["role"] = Model.Role;
+        if (!string.IsNullOrEmpty(Model.Status)) route["status"] = Model.Status;
+        if (organisationId && Model.OrganisationId is int id) route["organisationId"] = id;
+        if (!string.IsNullOrEmpty(sort ?? Model.Sort)) route["sort"] = sort ?? Model.Sort;
+        if (desc ?? Model.Desc) route["desc"] = "true";
+        if (page is int pageNumber) route["page"] = pageNumber;
+        return route;
+    }
+
+    // Column heading that sorts by that column; clicking again flips the direction.
+    private IHtmlContent SortHeader(string key, string label, string currentSort)
+    {
+        var isSorted = currentSort == key;
+        var href = Url.Action("Index", Route(sort: key, desc: isSorted && !Model.Desc));
+        var icon = !isSorted ? Icons.Svg("sort", 12) : Icons.Svg(Model.Desc ? "chevron-down" : "chevron-up", 12);
+        var builder = new HtmlContentBuilder();
+        builder.AppendHtml($"<a href=\"{System.Net.WebUtility.HtmlEncode(href)}\" class=\"{(isSorted ? "is-sorted" : "")}\">");
+        builder.Append(label);
+        builder.AppendHtml(icon);
+        builder.AppendHtml("</a>");
+        return builder;
+    }
+}

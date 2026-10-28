@@ -1,0 +1,21 @@
+@model OrganisationFormViewModel
+@{
+    ViewData["Title"] = "New organisation";
+}
+
+<a asp-action="Index" class="back-link">@Icons.Svg("chevron-left", 14) Back to organisations</a>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">New organisation</h1>
+        <p class="page-subtitle">Add a customer organisation so reviews can be shared with its users.</p>
+    </div>
+</div>
+
+<div class="panel">
+    <partial name="_OrganisationForm" model="Model" />
+    <partial name="_FormButtons" />
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

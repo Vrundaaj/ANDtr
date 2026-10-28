@@ -1,0 +1,30 @@
+@model OrganisationFormViewModel
+
+@* Shared by Create and Edit (A2). The Save button can sit outside, linked through form="organisation-form". *@
+<form id="organisation-form" asp-action="@(Model.IsEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post" novalidate>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger m-4 mb-0" role="alert"></div>
+
+    <div class="form-section">
+        <div>
+            <h2 class="form-section-title">Organisation details</h2>
+            <p class="form-section-text">The name must be unique. Reviews are shared with the organisation as a whole.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Name" class="form-label">Organisation name *</label>
+                <input asp-for="Name" class="form-control" placeholder="e.g. Sanjivani Healthcare" />
+                <span asp-validation-for="Name"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ContactEmail" class="form-label">Contact email *</label>
+                <input asp-for="ContactEmail" type="email" class="form-control" placeholder="contact@company.com" />
+                <span asp-validation-for="ContactEmail"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Notes" class="form-label"></label>
+                <textarea asp-for="Notes" class="form-control" rows="2" placeholder="e.g. Main hospital group customer"></textarea>
+                <span asp-validation-for="Notes"></span>
+            </div>
+        </div>
+    </div>
+</form>

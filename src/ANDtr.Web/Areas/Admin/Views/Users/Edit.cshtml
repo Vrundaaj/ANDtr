@@ -1,0 +1,18 @@
+@model UserFormViewModel
+@{
+    ViewData["Title"] = "Edit user";
+}
+
+<a asp-action="Index" class="back-link">@Icons.Svg("chevron-left", 14) Back to users</a>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@Model.FullName</h1>
+        <p class="page-subtitle">@Model.Email</p>
+    </div>
+</div>
+
+<partial name="_UserForm" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,21 @@
+@using ANDtr.Web.Services
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+@* Signed-in user's initials, name and role, with Log out. No sign-up link: only an admin creates accounts (A1). *@
+@if (SignInManager.IsSignedIn(User))
+{
+    var role = Roles.All.FirstOrDefault(User.IsInRole) ?? "Signed in";
+    var name = User.FindFirst(ApplicationClaimsPrincipalFactory.FullNameClaim)?.Value ?? User.Identity?.Name;
+
+    <div class="user-chip" title="@User.Identity?.Name">
+        <span class="avatar">@DisplayText.Initials(name)</span>
+        <span class="user-chip-text">
+            <strong>@name</strong>
+            <small>@role</small>
+        </span>
+        <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="inline-form">
+            <button type="submit" class="btn-logout">@Icons.Svg("logout", 15) Log out</button>
+        </form>
+    </div>
+}

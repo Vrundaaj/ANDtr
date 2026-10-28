@@ -1,0 +1,86 @@
+@model SharedReviewsHomeViewModel
+@{
+    ViewData["Title"] = "Shared reviews";
+}
+
+@* Customer home page: only reviews shared with the customer's own organisation are listed (A2-05). *@
+<partial name="_WelcomeHero" model="@("Review the safety and recall findings ANDtr has shared with your organisation.")" />
+
+<div class="stat-grid is-three">
+    <div class="panel stat-card">
+        <span class="stat-icon tone-green">@Icons.Svg("building", 20)</span>
+        <div>
+            <div class="stat-label">Your organisation</div>
+            <div class="stat-value stat-value-text">@(Model.OrganisationName ?? "Not assigned")</div>
+        </div>
+    </div>
+    <div class="panel stat-card">
+        <span class="stat-icon tone-purple">@Icons.Svg("share", 20)</span>
+        <div>
+            <div class="stat-label">Reviews shared with you</div>
+            <div class="stat-value">@Model.Reviews.Count</div>
+        </div>
+    </div>
+    <div class="panel stat-card">
+        <span class="stat-icon tone-blue">@Icons.Svg("lock", 20)</span>
+        <div>
+            <div class="stat-label">Privacy</div>
+            <div class="stat-value stat-value-text">Organisation only</div>
+            <div class="stat-hint">Other organisations cannot see your reviews</div>
+        </div>
+    </div>
+</div>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h2 class="panel-title">Reviews shared with your organisation</h2>
+            <p class="panel-subtitle">Open a review to see the recall notices and ANDtr's findings.</p>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="table app-table">
+            <thead>
+                <tr>
+                    <th>Review</th>
+                    <th>Notices</th>
+                    <th>Comments</th>
+                    <th>Shared</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var review in Model.Reviews)
+                {
+                    <tr>
+                        <td>
+                            <div class="cell-user">
+                                <span class="avatar is-square tone-purple">@Icons.Svg("clipboard", 18)</span>
+                                <span class="cell-user-text">
+                                    <a asp-action="Details" asp-route-id="@review.Id"><strong>@review.Name</strong></a>
+                                    <span>Shared by @review.SharedBy</span>
+                                </span>
+                            </div>
+                        </td>
+                        <td><span class="pill pill-count">@review.NoticeCount</span></td>
+                        <td><span class="pill pill-count">@review.CommentCount</span></td>
+                        <td title="@review.SharedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")">@DisplayText.TimeAgo(review.SharedAt)</td>
+                        <td>
+                            <div class="row-actions">
+                                <a class="action" asp-action="Details" asp-route-id="@review.Id">@Icons.Svg("eye", 14) Open</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.Reviews.Count == 0)
+        {
+            <div class="empty-state">
+                @Icons.Svg("share", 32)
+                <strong>No reviews shared yet</strong>
+                When ANDtr shares a risk review with your organisation, it will appear here.
+            </div>
+        }
+    </div>
+</section>

@@ -1,0 +1,17 @@
+@* Confirmation banner for the last change (set through TempData). Success fades out; errors stay until closed. *@
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success mb-4" role="status" data-autodismiss="6000">
+        @Icons.Svg("check-circle", 18)
+        <span>Success: @success</span>
+        <button type="button" class="alert-close" aria-label="Close">@Icons.Svg("x", 16)</button>
+    </div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger mb-4" role="alert">
+        @Icons.Svg("alert-circle", 18)
+        <span>Error: @error</span>
+        <button type="button" class="alert-close" aria-label="Close">@Icons.Svg("x", 16)</button>
+    </div>
+}

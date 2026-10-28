@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.vscode-dotnet-runtime",
+    "editorconfig.editorconfig",
+    "eamodio.gitlens",
+    "ms-vsliveshare.vsliveshare",
+    "usernamehw.errorlens",
+    "qwtel.sqlite-viewer",
+    "github.vscode-pull-request-github",
+    "github.vscode-github-actions"
+  ]
+}

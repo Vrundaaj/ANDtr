@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "Search";
+    FeatureCard[] features =
+    [
+        new("search", "Search notices", "Find FDA safety and recall notices by product, firm, recall class or reason."),
+        new("clipboard", "Build risk reviews", "Add the notices that matter to a review and record your findings."),
+        new("share", "Share with customers", "Share a finished review with a customer organisation and discuss it."),
+    ];
+}
+
+@* Employee home page. Placeholder until the Search feature is built. *@
+<partial name="_WelcomeHero" model="@("Search the recall dataset and turn relevant notices into risk reviews for your customers.")" />
+
+<h2 class="section-heading">What you can do</h2>
+<partial name="_FeatureCards" model="features" />

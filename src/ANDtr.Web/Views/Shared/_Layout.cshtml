@@ -1,0 +1,95 @@
+@using ANDtr.Web.Data
+@using ANDtr.Web.Helpers
+@{
+    // Highlights the nav link for the current page.
+    var currentController = ViewContext.RouteData.Values["controller"] as string;
+    string Active(string controller) => currentController == controller ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ANDtr Recall Platform</title>
+    <script type="importmap"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    @* The login page has no menu, so the bar is only shown to signed-in users. *@
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <header>
+            <nav class="navbar navbar-expand-md app-navbar">
+                <div class="container">
+                    <a class="app-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                        <span class="brand-mark">@Icons.Svg("shield", 18)</span>
+                        <span class="brand-text"><strong>ANDtr</strong><small>Recall Platform</small></span>
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse justify-content-between">
+                        <ul class="navbar-nav">
+                            @if (User.IsInRole(Roles.Employee))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @Active("Search")" asp-area="" asp-controller="Search" asp-action="Index">Search</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @Active("Reviews")" asp-area="" asp-controller="Reviews" asp-action="Index">Reviews</a>
+                                </li>
+                            }
+                            @if (User.IsInRole(Roles.Customer))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @Active("SharedReviews")" asp-area="" asp-controller="SharedReviews" asp-action="Index">Shared reviews</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @Active("Notifications")" asp-area="" asp-controller="Notifications" asp-action="Index">Notifications</a>
+                                </li>
+                            }
+                            @if (User.IsInRole(Roles.Admin))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @Active("Users")" asp-area="Admin" asp-controller="Users" asp-action="Index">Users</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @Active("Organisations")" asp-area="Admin" asp-controller="Organisations" asp-action="Index">Organisations</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @Active("Dataset")" asp-area="Admin" asp-controller="Dataset" asp-action="Index">Dataset</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @Active("ActivityLog")" asp-area="Admin" asp-controller="ActivityLog" asp-action="Index">Activity log</a>
+                                </li>
+                            }
+                        </ul>
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <div class="container">
+            <main role="main" class="app-main">
+                @RenderBody()
+            </main>
+        </div>
+    }
+    else
+    {
+        <main role="main">
+            @RenderBody()
+        </main>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Reviews";
+    FeatureCard[] features =
+    [
+        new("clipboard", "Your risk reviews", "Every review you have started, with its notices and findings."),
+        new("pencil", "Comments", "Add internal notes or comments your customer can see."),
+        new("share", "Sharing", "Choose which organisation a review is shared with."),
+    ];
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Reviews</h1>
+        <p class="page-subtitle">Organise relevant notices into risk reviews and share your findings.</p>
+    </div>
+</div>
+
+<partial name="_FeatureCards" model="features" />
